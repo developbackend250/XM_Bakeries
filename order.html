@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Place Order</title>
+</head>
+<body>
+  <h1>Place New Order</h1>
+  <form id="orderForm">
+    <input type="text" id="customer_id" placeholder="Customer ID" required><br><br>
+
+    <textarea id="shipping_address" placeholder="Shipping Address" required></textarea><br><br>
+
+    <h3>Items (Format: product_id,quantity)</h3>
+    <textarea id="items" placeholder="Example:\n1,2\n3,1" required></textarea><br><br>
+
+    <button type="submit">Submit Order</button>
+  </form>
+
+  <p id="result"></p>
+
+  <script>
+    document.getElementById("orderForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const customer_id = document.getElementById("customer_id").value;
+      const shipping_address = document.getElementById("shipping_address").value;
+
+      const rawItems = document.getElementById("items").value.trim().split("\n");
+      const items = rawItems.map(line => {
+        const [product_id, quantity] = line.split(',').map(x => x.trim());
+        return { product_id: parseInt(product_id), quantity: parseInt(quantity) };
+      });
+
+      const res = await fetch('http://localhost:3000/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ customer_id, shipping_address, items })
+      });
+
+      const data = await res.json();
+      document.getElementById("result").innerText = data.message || JSON.stringify(data);
+    });
+  </script>
+</body>
+</html>
